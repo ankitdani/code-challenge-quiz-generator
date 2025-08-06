@@ -47,7 +47,7 @@ export default function ChallengeGenerator() {
             >
                 {isLoading ? "Generating..." : "Generate Challenge"}
             </button>
-            {error ?? 
+            {error &&
                 <div className="error-message">
                     <p>{error}</p>
                 </div>}
