@@ -1,9 +1,44 @@
 import "react"
+import { useState, useEffect } from "react"
+import MCQChallenge from "../challenge/MCQChallenge.jsx"
 
 export default function HistoryPanel() {
+    const [history, setHistory] = useState();
+    const [isLoading, setIsLoading] = useState();
+    const [error, setError] = useState();
+
+    useEffect(()=>{
+        fetchHistory();
+    }, [])
+
+    const fetchHistory = async () => {
+        setIsLoading(false);
+    }
+
+    if (isLoading){
+        return <div>loading....</div>
+    }
+
+    if (error){
+        return <div className="error-message">
+            <p>{error}</p>
+            <button onClick={fetchHistory}>Retry</button>
+        </div>
+    }
+
     return (
-        <div>
-            <h1>History Panel</h1>
+        <div className="history-panel">
+            <h2>History</h2>
+            {history.length === 0 ? <p>No challenge history</p> : 
+            <div className="history-list">
+                {history.map((challenge) => {
+                    return <MCQChallenge 
+                            challenge={challenge}
+                            key = {challenge.id}
+                            showExplainination
+                    />
+                })}
+            </div>}
         </div>
     )
 }
