@@ -3,9 +3,9 @@ import { useState, useEffect } from "react"
 import MCQChallenge from "../challenge/MCQChallenge.jsx"
 
 export default function HistoryPanel() {
-    const [history, setHistory] = useState();
-    const [isLoading, setIsLoading] = useState();
-    const [error, setError] = useState();
+    const [history, setHistory] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(()=>{
         fetchHistory();
