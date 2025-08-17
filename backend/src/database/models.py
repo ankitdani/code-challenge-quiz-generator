@@ -24,7 +24,7 @@ class ChallengeQuota(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(String, nullable=False, unique=True)
     quota_remaining = Column(Integer, nullable=False, default=50)
-    last_reset-date = Column(DateTime, default=datetime.now)
+    last_reset_date = Column(DateTime, default=datetime.now)
 
 # convert to sql code
 Base.metadata.create_all(engine)
