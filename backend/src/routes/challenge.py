@@ -22,25 +22,28 @@ class ChallengeRequest(BaseModel):
         }
 
 @router.post("/generate-challenge")
-async def generate_challenge(request: Request, challenge_request: ChallengeRequest, db: Session = Depends(get_db)):
+async def generate_challenge(request: ChallengeRequest, request_obj: Request, db: Session = Depends(get_db)):
     try:
-        user_details = authenticate_get_user_request(request)
+        user_details = authenticate_get_user_request(request_obj)
         user_id = user_details.get("user_id")
 
         quota = get_challenge_quota(db, user_id)
         if not quota:
-            create_challenge_quota(db, user_id)
+            quota = create_challenge_quota(db, user_id)
         quota = reset_quota_if_needed(db, quota)
 
         if quota.quota_remaining <= 0:
-            raise HTTPException(status_code=429, detail="Quota exceeded")
+            raise HTTPException(status_code=429, detail="Quota exhausted")
         
         challenge_data = generate_challenge_with_ai(request.difficulty)
         new_challenge = create_challenge(
             db=db,
             difficulty=request.difficulty,
             created_by=user_id,
-            **challenge_data
+            title=challenge_data["title"],  
+            options=json.dumps(challenge_data["options"]),      # json dumps = need string to save in sql
+            correct_answer_id=challenge_data["correct_answer_id"],
+            explanation=challenge_data["explanation"]
         )
 
         quota.quota_remaining -= 1
@@ -48,7 +51,7 @@ async def generate_challenge(request: Request, challenge_request: ChallengeReque
 
         return {
             "id": new_challenge.id,
-            "difficulty": new_challenge.difficulty,
+            "difficulty": request.difficulty,
             "title": new_challenge.title,
             "options": json.loads(new_challenge.options),
             "correct_answer_id": new_challenge.correct_answer_id,
@@ -60,7 +63,7 @@ async def generate_challenge(request: Request, challenge_request: ChallengeReque
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/my_history")
+@router.get("/my-history")
 async def my_history(request: Request, db: Session = Depends(get_db)):
     user_details = authenticate_get_user_request(request)
     user_id = user_details.get("user_id")
@@ -73,7 +76,7 @@ async def get_quota(request: Request, db: Session = Depends(get_db)):
     user_id = user_details.get("user_id")
     quota = get_challenge_quota(db, user_id)
     if not quota:
-        return {"user_id": user_id, "quota": 0, "last_reset": datetime.now()}
+        return {"user_id": user_id, "quota_remaining": 0, "last_reset_date": datetime.now()}
     quota = reset_quota_if_needed(db, quota)
     return quota
     
