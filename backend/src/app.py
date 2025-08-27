@@ -1,10 +1,7 @@
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from clerk_backend_api import Clerk
-
-import os
-
-clerk_sdk = Clerk(bearer_auth=os.getenv("CLERK_SECRET_KEY"))
+from .routes import challenge
+from .routes import webhooks
 
 app = FastAPI()
 
@@ -16,6 +13,5 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-
-
-
+app.include_router(challenge.router, prefix="/api")
+app.include_router(webhooks.router, prefix="/webhooks")
