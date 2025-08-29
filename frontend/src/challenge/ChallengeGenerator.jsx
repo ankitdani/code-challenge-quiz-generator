@@ -73,6 +73,7 @@ export default function ChallengeGenerator() {
       <button
         onClick={generateChallenge}
         disabled={isLoading}
+        // disabled={false}
         className="generate-button"
       >
         {isLoading ? "Generating..." : "Generate Challenge"}
@@ -82,7 +83,12 @@ export default function ChallengeGenerator() {
           <p>{error}</p>
         </div>
       )}
-      {challenge ?? <MCQChallenge className="challenge"></MCQChallenge>}
+      {challenge && (
+        <MCQChallenge
+          className="challenge"
+          challenge={challenge}
+        ></MCQChallenge>
+      )}
     </div>
   );
 }
