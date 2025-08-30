@@ -1,59 +1,61 @@
-import "react"
-import { useState } from "react"
+import "react";
+import { useState } from "react";
 
-export default function MCQChallenge({challenge, showExplainination = false}) {
+export default function MCQChallenge({ challenge, showExplanation = false }) {
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [shouldShowExplanation, setShouldShowExplanation] =
+    useState(showExplanation);
 
-    const [selectedOption, setSelectedOption] = useState(null);
-    const [shouldShowExplaination, setShouldShowExplanation] = useState(showExplainination);
+  const options =
+    typeof challenge?.options === "string"
+      ? JSON.parse(challenge.options)
+      : Array.isArray(challenge?.options)
+      ? challenge.options
+      : [];
 
-    if (!challenge) return <div className="challenge-display">Loading…</div>;
+  const handleOptionSelect = (index) => {
+    if (selectedOption !== null) return;
+    setSelectedOption(index);
+    setShouldShowExplanation(true);
+  };
 
-    const options = typeof challenge?.options === "string"
-        ? JSON.parse(challenge.options) :
-        challenge.options;
+  const getOptionClass = (index) => {
+    if (selectedOption === null) return "option";
 
-    const handleOptionSelect = (index) => {
-        if (selectedOption !== null) return;
-        setSelectedOption(index);
-        setShouldShowExplanation(true);
+    if (index === challenge.correct_answer_id) {
+      return "option correct";
     }
 
-    const getOptionClass = (index) => {
-        if (selectedOption === null) return "option";
-
-        if (index === challenge.correct_answer_id){
-            return "option correct"
-        }
-
-        if (selectedOption === index && index !== challenge.correct_answer_id){
-            return "option incorrect"
-        }
-
-        return "option";
+    if (selectedOption === index && index !== challenge.correct_answer_id) {
+      return "option incorrect";
     }
-    
-    return (
-        <div className="challenge-display">
-            <p>
-                <strong>Difficulty : </strong>
-                {challenge.difficulty}
-            </p>
-            <p className="challenge-title">
-                {challenge.title}
-            </p>
-            <div className="options">
-                {options.map((option, index) => (
-                    <div className={getOptionSelect(index)} key = {index} onClick={() => handleOptionSelect(index)}>
-                        {option}
-                    </div>
-                ))}
-            </div>
-            {shouldShowExplaination && selectedOption !== null &&
-                (<div className="explaination">
-                    <h4>Explaination</h4>
-                    <p>{challenge.explaination}</p>
-                </div>)
-            }
+
+    return "option";
+  };
+
+  return (
+    <div className="challenge-display">
+      <p>
+        <strong>Difficulty</strong>: {challenge.difficulty}
+      </p>
+      <p className="challenge-title">{challenge.title}</p>
+      <div className="options">
+        {options.map((option, index) => (
+          <div
+            className={getOptionClass(index)}
+            key={index}
+            onClick={() => handleOptionSelect(index)}
+          >
+            {option}
+          </div>
+        ))}
+      </div>
+      {shouldShowExplanation && selectedOption !== null && (
+        <div className="explanation">
+          <h4>Explanation</h4>
+          <p>{challenge.explanation}</p>
         </div>
-    )
+      )}
+    </div>
+  );
 }
