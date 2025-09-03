@@ -1,22 +1,24 @@
 from fastapi import HTTPException
 from clerk_backend_api import Clerk, AuthenticateRequestOptions
 from dotenv import load_dotenv
+import traceback
 
 import os
 load_dotenv()
-
+    
 clerk_sdk = Clerk(bearer_auth=os.getenv("CLERK_SECRET_KEY"))
+print(clerk_sdk)
 
 def authenticate_get_user_request (request):
     try:
         request_state = clerk_sdk.authenticate_request(
             request,
             AuthenticateRequestOptions(
-                authourized_parties=["http://localhost:5173", "http://localhost:5173"],
+                authorized_parties=["http://localhost:5173", "http://localhost:5174"],
                 jwt_key=os.getenv("JWT_KEY")
             )
         )
-        
+        print("Request state:", request_state.__dict__)
         if not request_state.is_signed_in:
             raise HTTPException(status_code=401, detail="Invalid token")
         
@@ -24,4 +26,6 @@ def authenticate_get_user_request (request):
 
         return {"user_id": user_id}
     except Exception as e:
+        # print("Authentication error:", e)  
+        # traceback.print_exc() # get full error stack
         raise HTTPException(status_code=500, detail=str(e))
