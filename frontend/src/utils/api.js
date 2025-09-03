@@ -6,6 +6,10 @@ export const useApi = () => {
   const makeRequest = async (endpoint, options = {}) => {
     const token = await getToken();
 
+    if (!token) {
+      throw new Error("Authentication token is missing");
+    }
+
     const defaultOptions = {
       headers: {
         "Content-Type": "application/json",
@@ -13,7 +17,7 @@ export const useApi = () => {
       },
     };
 
-    const response = await fetch(`http://localhost:3000/api/${endpoint}`, {
+    const response = await fetch(`http://localhost:8000/api/${endpoint}`, {
       ...defaultOptions,
       ...options,
     });
